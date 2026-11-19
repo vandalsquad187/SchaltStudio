@@ -1,0 +1,21 @@
+# Android / IDE
+*.iml
+.gradle
+/build
+/local.properties
+/.idea
+.DS_Store
+.cxx
+captures
+.externalNativeBuild
+
+# Build-Artefakte
+/dist
+*.apk
+*.aab
+*.ap_
+
+# Signing
+*.jks
+*.keystore
+keystore.properties

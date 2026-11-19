@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+
+jobs:
+  build:
+    name: Build & Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: SDK-Lizenzen akzeptieren
+        run: yes | sdkmanager --licenses > /dev/null || true
+
+      - name: SDK-Pakete installieren
+        run: sdkmanager "platforms;android-36" "build-tools;36.0.0"
+
+      - name: APK bauen
+        run: bash build.sh
+
+      - name: Simulationstests ausführen
+        run: |
+          javac -source 8 -target 8 -encoding UTF-8 -Xlint:-options -nowarn \
+            -cp build/classes -d build/test test/EngineTest.java test/ExSanity.java
+          java -cp build/classes:build/test EngineTest
+          java -cp build/classes:build/test ExSanity
+
+      - name: APK hochladen
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: SchaltStudio-apk
+          path: dist/SchaltStudio.apk
